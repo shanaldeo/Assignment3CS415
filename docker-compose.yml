@@ -19,6 +19,9 @@ services:
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - app-network
+    # ADD THIS LINE: Ensure the PHP app waits for the transcript microservice to start
+    depends_on:
+      - transcript_microservice
 
   #Nginx Service
   webserver:
@@ -54,11 +57,32 @@ services:
     networks:
       - app-network
 
-#Docker Networks
+  # ADD THIS NEW SERVICE BLOCK FOR THE TRANSCRIPT MICROSERVICE
+  transcript_microservice:
+    build: ./transcript_microservice # Points to the folder containing your Dockerfile and Python code
+    # Mount the Academic.accdb file from your host machine into the container.
+    # Left side: Path on your host (relative to this docker-compose.yml file).
+    # Right side: Path inside the container where transcript_service.py expects it.
+    volumes:
+      - ./transcript_microservice/Academic.accdb:/app/data/Academic.accdb
+    environment:
+      # This environment variable is read by transcript_service.py to find the DB.
+      ACCESS_DB_PATH: /app/data/Academic.accdb
+    ports:
+      # Map host port 8001 to the container's internal port 5000 (where Flask runs).
+      # You can access the microservice directly from your host via http://localhost:8001
+      - "8001:5000"
+    networks:
+      # Crucial: Connects the microservice to the same network as your PHP app
+      # so they can communicate using service names (e.g., 'http://transcript_microservice:5000')
+      - app-network
+
+#Docker Networks (Existing - no changes needed here)
 networks:
   app-network:
     driver: bridge
-#Volumes
+
+#Volumes (Existing - no changes needed here)
 volumes:
   dbdata:
     driver: local

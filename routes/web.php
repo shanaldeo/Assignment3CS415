@@ -24,6 +24,7 @@ use App\Http\Controllers\SchoolSessionController;
 use App\Http\Controllers\AcademicSettingController;
 use App\Http\Controllers\AssignedTeacherController;
 use App\Http\Controllers\Auth\UpdatePasswordController;
+use App\Http\Controllers\StudentAcademicInfoController; // ADD THIS LINE
 
 /*
 |--------------------------------------------------------------------------
@@ -105,12 +106,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/students/view/profile/{id}', [UserController::class, 'showStudentProfile'])->name('student.profile.show');
     Route::get('/students/view/attendance/{id}', [AttendanceController::class, 'showStudentAttendance'])->name('student.attendance.show');
 
+    // ADD THIS NEW ROUTE FOR THE TRANSCRIPT DOWNLOAD
+    // Place this near other student-related routes or at a logical position.
+    Route::get('/student/{studentId}/transcript', [StudentAcademicInfoController::class, 'downloadTranscript'])
+        ->name('student.transcript.download');
+
+
     // Marks
     Route::get('/marks/create', [MarkController::class, 'create'])->name('course.mark.create');
     Route::post('/marks/store', [MarkController::class, 'store'])->name('course.mark.store');
     Route::get('/marks/results', [MarkController::class, 'index'])->name('course.mark.list.show');
     // Route::get('/marks/view', function () {
-    //     return view('marks.view');
+    //      return view('marks.view');
     // });
     Route::get('/marks/view', [MarkController::class, 'showCourseMark'])->name('course.mark.show');
     Route::get('/marks/final/submit', [MarkController::class, 'showFinalMark'])->name('course.final.mark.submit.show');
@@ -119,7 +126,7 @@ Route::middleware(['auth'])->group(function () {
     // Exams
     Route::get('/exams/view', [ExamController::class, 'index'])->name('exam.list.show');
     // Route::get('/exams/view/history', function () {
-    //     return view('exams.history');
+    //      return view('exams.history');
     // });
     Route::post('/exams/create', [ExamController::class, 'store'])->name('exam.create');
     // Route::post('/exams/delete', [ExamController::class, 'delete'])->name('exam.delete');
